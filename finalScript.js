@@ -9,8 +9,28 @@ console.log("linked");
 subBtn.addEventListener('click', function () {
     let msg=uMsg.value;
     temp = utime.value;
-    uMsg.value="";
+    if(msg==""){
+        alert("please enter message");
+    }else{
+
+        let allTask=localStorage.getItem("tasks");
+        let allTime=localStorage.getItem("allTime");
+        if(allTask==null && allTime==null ){
+            remainderTask=[];
+            remainderTime=[];
+        }else{
+            remainderTask=JSON.parse(allTask);
+            remainderTime=JSON.parse(allTime);
+        }
+        remainderTask.push(msg);
+        remainderTime.push(temp);
+        localStorage.setItem("tasks",JSON.stringify(remainderTask));
+        localStorage.setItem("allTime",JSON.stringify(remainderTime));
+
+
     newRemainder(msg,temp)
+    uMsg.value="";
+    }
 });
 function paraText(m) {
 
@@ -23,11 +43,22 @@ function paraText(m) {
     p.appendChild(txtNode)
     document.getElementById("box1").appendChild(p)
 }
-function newRemainder(msg=null,temp) {
+function newRemainder(msg=null,temp=true) {
+    if(msg == null){
+        let myList = localStorage.getItem("tasks") ? JSON.parse(localStorage.getItem("tasks")) : []
+        myList.push({
+            text: msg
+        });
+        localStorage.setItem("myList", JSON.stringify(myList))
+    }
+
+
+    if(temp){
     stop = setInterval(() => {
         paraText(msg);
     }, temp * 1000);
     arr.push(stop);
+}
     let li = document.createElement("li")
     let txtNode1 = document.createTextNode(msg);
     li.appendChild(txtNode1);
@@ -40,23 +71,26 @@ function newRemainder(msg=null,temp) {
     span.appendChild(txt);
     li.appendChild(span);
 
-
-    for(let i =0 ; i< arr.length ; i++)
-        {
-            span.addEventListener("click" , function(){
-                let div = this.parentElement;
-  
-                div.style.display = "none";
-           
-                clearInterval(arr[i]);  
-                
-            });
-    if(msg === null){
-        let myList = localStorage.getItem("myList") ? JSON.parse(localStorage.getItem("myList")) : []
-        myList.push({
-            text: msg
-        })
-        localStorage.setItem("myList", JSON.stringify(myList))
-    }
+    removeTask(span);
+   
 }
+let storedItem = localStorage.getItem("tasks") ? JSON.parse(localStorage.getItem("tasks")) : []
+let storedTime = localStorage.getItem("allTime") ? JSON.parse(localStorage.getItem("allTime")) : []
+for(let nodeCnt = 0; nodeCnt < storedItem.length; nodeCnt++){
+    newRemainder(storedItem[nodeCnt],false);
+}
+function removeTask(span){
+    for(let i =0 ; i< arr.length ; i++)
+    {
+        span.addEventListener("click" , function(){
+            let div = this.parentElement;
+
+            div.style.display = "none";
+       
+            clearInterval(arr[i]);  
+            
+        });
+
+}
+
 }
